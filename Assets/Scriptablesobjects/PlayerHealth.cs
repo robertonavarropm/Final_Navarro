@@ -2,20 +2,9 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int hp = 3;
-
-    public void TakeDamage(int damage)
+    public void Die()
     {
-        hp -= damage;
-
-        if (hp <= 0)
-        {
-            Die();
-        }
-    }
-
-    void Die()
-    {
+        Debug.Log("Player murió");
         Destroy(gameObject);
     }
 }

@@ -4,31 +4,35 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     [Header("Config")]
-    public EnemyData data;
-    public LayerMask wallMask;
+    public EnemyData data;       // ScriptableObject con stats
+    public LayerMask wallMask;   // Layer de paredes/obstáculos
 
-    Rigidbody rb;
-    int hp;
+    private Rigidbody rb;
+    private int hp;
 
-    Vector3 dir;
-    float nextDirChangeTime;
+    private Vector3 dir;
+    private float nextDirChangeTime;
 
-    static readonly Vector3[] dirs =
+    // Direcciones tipo Bomberman (4 cardinales)
+    private static readonly Vector3[] dirs =
     {
-        Vector3.forward,
-        Vector3.back,
-        Vector3.left,
-        Vector3.right
+        Vector3.forward, // (0,0,1)
+        Vector3.back,    // (0,0,-1)
+        Vector3.left,    // (-1,0,0)
+        Vector3.right    // (1,0,0)
     };
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
-        // Seguridad por si te olvidás de asignar data
+        // Recomendado para top-down
+        rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+
         if (data == null)
         {
-            Debug.LogError("EnemyController: falta asignar EnemyData.", this);
+            UnityEngine.Debug.LogError("EnemyController: falta asignar EnemyData en el Inspector.", this);
             enabled = false;
             return;
         }
@@ -39,34 +43,35 @@ public class EnemyController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Si hay pared adelante, cambiá dirección (estilo Bomberman)
+        // Si hay pared adelante, cambiar de dirección (estilo Bomberman)
         if (Time.time >= nextDirChangeTime && IsWallAhead())
         {
             PickNewDirection();
             nextDirChangeTime = Time.time + data.directionChangeCooldown;
         }
 
-        // Matemática vectorial: delta = dir * speed * dt
-        Vector3 moveDir = dir.normalized; // (unitario)
+        // Matemática de vectores: delta = dirección * velocidad * dt
+        Vector3 moveDir = dir.normalized; // unitario
         Vector3 delta = moveDir * data.moveSpeed * Time.fixedDeltaTime;
 
         rb.MovePosition(rb.position + delta);
     }
 
-    bool IsWallAhead()
+    private bool IsWallAhead()
     {
         Vector3 origin = transform.position + Vector3.up * 0.2f;
         return Physics.Raycast(origin, dir, data.obstacleCheckDistance, wallMask);
     }
 
-    void PickNewDirection()
+    private void PickNewDirection()
     {
-        // probamos varias para evitar quedarnos eligiendo una dirección bloqueada
         Vector3 origin = transform.position + Vector3.up * 0.2f;
 
+        // Intentar encontrar una dirección libre
         for (int i = 0; i < 10; i++)
         {
             Vector3 candidate = dirs[Random.Range(0, dirs.Length)];
+
             if (!Physics.Raycast(origin, candidate, data.obstacleCheckDistance, wallMask))
             {
                 dir = candidate;
@@ -74,33 +79,33 @@ public class EnemyController : MonoBehaviour
             }
         }
 
+        // Fallback si está “encerrado”
         dir = dirs[Random.Range(0, dirs.Length)];
     }
 
-    // --- VIDA ---
+    // --- VIDA ENEMIGO ---
     public void TakeDamage(int amount)
     {
         hp -= amount;
         if (hp <= 0) Die();
     }
 
-    void Die()
+    private void Die()
     {
         Destroy(gameObject);
     }
 
-    // --- ATAQUE AL CONTACTO ---
-    void OnCollisionEnter(Collision col)
+    private void OnCollisionEnter(Collision col)
     {
-        if (!col.collider.CompareTag("Player")) return;
+        Debug.Log("Choqué con: " + col.collider.name);
 
-        // si tu jugador tiene vida:
-        var ph = col.collider.GetComponent<PlayerHealth>();
-        if (ph != null) ph.TakeDamage(data.contactDamage);
-        else
+        if (col.collider.CompareTag("Player"))
         {
-            // si no tiene vida, lo destruimos (bomberman clásico: te mata al toque)
-            Destroy(col.collider.gameObject);
+            Debug.Log("¡Toqué al Player!");
+
+            PlayerHealth player = col.collider.GetComponent<PlayerHealth>();
+            if (player != null) player.Die();
+            else Destroy(col.collider.gameObject);
         }
     }
 }
