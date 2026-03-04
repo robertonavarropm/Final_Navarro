@@ -1168,6 +1168,7 @@ GameObject:
   - component: {fileID: 107632389}
   - component: {fileID: 107632390}
   - component: {fileID: 107632391}
+  - component: {fileID: 107632392}
   m_Layer: 0
   m_Name: Jugador
   m_TagString: Player
@@ -1260,7 +1261,7 @@ Transform:
   m_GameObject: {fileID: 107632384}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.13, y: 1.033, z: -10.41}
+  m_LocalPosition: {x: 12.75, y: 1.033, z: -8.23}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1316,7 +1317,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3360b8ef363b2f940b6e46be89128b43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 3
+--- !u!114 &107632392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 107632384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31b1f18a83fb3a54aa7f5156aeccad46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &131660775
 Mesh:
   m_ObjectHideFlags: 0
@@ -2323,31 +2335,27 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 80
-  m_CollisionDetection: 0
---- !u!136 &193383793
-CapsuleCollider:
+  m_Constraints: 112
+  m_CollisionDetection: 1
+--- !u!114 &193383793
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 193383787}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8b79bfeaaeb96647888d828795d933b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: d14bbe05f5367d045bc24f569f75ac00, type: 2}
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 8
+  player: {fileID: 0}
+  sightDistance: 20
+  repathInterval: 0.25
 --- !u!1 &195401529
 GameObject:
   m_ObjectHideFlags: 0

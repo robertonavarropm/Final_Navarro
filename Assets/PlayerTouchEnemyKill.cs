@@ -1,20 +1,10 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
-public class PlayerTouchEnemyKill : MonoBehaviour
+public class PlayerDieOnEnemyTouch : MonoBehaviour
 {
-    private PlayerHealth health;
-
-    void Awake()
-    {
-        health = GetComponent<PlayerHealth>();
-    }
-
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("Enemy"))
-        {
-            health.Die();
-        }
+            Destroy(gameObject);
     }
 }
