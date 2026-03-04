@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
