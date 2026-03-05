@@ -2,80 +2,61 @@ using UnityEngine;
 
 public class Bomb : MonoBehaviour
 {
-    public BombData data;
+    [Header("Timing")]
+    public float fuseTime = 2f;        // tiempo antes de explotar
+    public float cellSize = 1f;        // tamaño de celda (tu grilla)
+    public int range = 2;              // alcance en celdas
 
-    [Header("Collision masks")]
-    public LayerMask wallMask;          // bloquea explosión
-    public LayerMask destructibleMask;  // opcional: rompe bloques
-
-    [Header("Damage")]
-    public int enemyDamage = 1;
-    public bool killPlayer = true;
+    [Header("Explosion blocking")]
+    public LayerMask wallMask;         // paredes/bloques indestructibles
 
     void Start()
     {
-        Invoke(nameof(Explode), data.fuseTime);
+        Invoke(nameof(Explode), fuseTime);
     }
 
     void Explode()
     {
-        // Centro (daño en la celda de la bomba)
-        ApplyDamageAt(transform.position);
+        // Centro
+        DamageAt(transform.position);
 
-        // Explosión en cruz (vectores cardinales)
-        ExplodeDirection(Vector3.forward);
-        ExplodeDirection(Vector3.back);
-        ExplodeDirection(Vector3.left);
-        ExplodeDirection(Vector3.right);
+        // Cruz (vectores cardinales)
+        ExplodeDir(Vector3.forward);
+        ExplodeDir(Vector3.back);
+        ExplodeDir(Vector3.left);
+        ExplodeDir(Vector3.right);
 
         Destroy(gameObject);
     }
 
-    void ExplodeDirection(Vector3 dir)
+    void ExplodeDir(Vector3 dir)
     {
-        // dir es un vector unitario cardinal
-        for (int i = 1; i <= data.range; i++)
+        for (int i = 1; i <= range; i++)
         {
-            Vector3 pos = transform.position + dir * (i * data.cellSize);
+            Vector3 pos = transform.position + dir * (i * cellSize);
 
             // Si hay pared, se corta la explosión
             if (Physics.CheckBox(pos, Vector3.one * 0.45f, Quaternion.identity, wallMask))
                 break;
 
-            // Daña lo que esté en esa celda
-            ApplyDamageAt(pos);
-
-            // Si hay bloque destructible, lo rompe y corta (estilo bomberman)
-            Collider[] destructibles = Physics.OverlapBox(pos, Vector3.one * 0.45f, Quaternion.identity, destructibleMask);
-            if (destructibles.Length > 0)
-            {
-                foreach (var d in destructibles)
-                    Destroy(d.gameObject);
-
-                break;
-            }
+            DamageAt(pos);
         }
     }
 
-    void ApplyDamageAt(Vector3 pos)
+    void DamageAt(Vector3 pos)
     {
-        // Enemigos
-        Collider[] hits = Physics.OverlapBox(pos, Vector3.one * 0.45f, Quaternion.identity);
+        Collider[] hits = Physics.OverlapBox(pos, Vector3.one * 0.45f);
+
         foreach (var h in hits)
         {
+            // Matar enemigos
             var enemy = h.GetComponentInParent<EnemyController>();
             if (enemy != null)
-                enemy.TakeDamage(enemyDamage);
+                enemy.TakeDamage(1);
 
-            if (killPlayer && h.CompareTag("Player"))
+            // (Opcional) matar jugador
+            if (h.CompareTag("Player"))
                 Destroy(h.gameObject);
         }
-    }
-
-    // Para ver el “hit” en escena (opcional)
-    void OnDrawGizmosSelected()
-    {
-        if (data == null) return;
-        Gizmos.DrawWireCube(transform.position, Vector3.one * 0.9f);
     }
 }

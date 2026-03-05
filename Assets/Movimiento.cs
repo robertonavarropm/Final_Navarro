@@ -1,16 +1,30 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
     public float speed = 5f;
 
+    private CharacterController controller;
+
+    void Awake()
+    {
+        controller = GetComponent<CharacterController>();
+    }
+
     void Update()
     {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        Vector3 dir = Vector3.zero;
 
-        Vector3 move = new Vector3(x, 0, z);
+        if (Keyboard.current.wKey.isPressed) dir += Vector3.forward;
+        if (Keyboard.current.sKey.isPressed) dir += Vector3.back;
+        if (Keyboard.current.aKey.isPressed) dir += Vector3.left;
+        if (Keyboard.current.dKey.isPressed) dir += Vector3.right;
 
-        transform.Translate(move * speed * Time.deltaTime);
+        dir = dir.normalized; // vector math (no diagonal más rápida)
+
+        // Move respeta colisiones con paredes
+        controller.Move(dir * speed * Time.deltaTime);
     }
 }
