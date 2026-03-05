@@ -127,3 +127,8 @@ MonoBehaviour:
   wallMask:
     serializedVersion: 2
     m_Bits: 8
+  destructibleMask:
+    serializedVersion: 2
+    m_Bits: 64
+  enemyDamage: 1
+  killPlayer: 1
